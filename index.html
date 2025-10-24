@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>成績查詢 | 家長入口</title>
+  <style>
+    :root{
+      --brand:#2563eb;
+      --brand-600:#1d4ed8;
+      --brand-700:#1e40af;
+      --bg:#f7f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --success:#10b981;
+      --danger:#ef4444;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --bg:#0b1020;
+        --card:#111a2b;
+        --text:#e5e7eb;
+        --muted:#9ca3af;
+        --border:#1f2a44;
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans TC", Arial, sans-serif;
+      line-height:1.6;
+    }
+    .container{max-width:920px; margin:0 auto; padding:24px}
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 0 8px; gap:16px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.3px}
+    .logo{width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, var(--brand), var(--brand-700)); box-shadow:0 6px 20px rgba(37,99,235,.35)}
+    .brand span{font-size:20px}
+
+    .hero{margin-top:12px; padding:20px; border:1px solid var(--border); border-radius:16px; background:linear-gradient(180deg, rgba(37,99,235,.06), rgba(37,99,235,0));}
+    .hero h1{margin:0 0 6px; font-size:26px}
+    .hero p{margin:0; color:var(--muted)}
+
+    .card{margin-top:18px; background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,.04)}
+    .card-body{padding:20px}
+
+    .grid{display:grid; grid-template-columns: 1fr; gap:14px}
+    @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
+
+    label{font-weight:600}
+    .hint{font-size:14px; color:var(--muted)}
+    .input, .select{width:100%; margin-top:6px; padding:12px 14px; border:1px solid var(--border); border-radius:12px; background:transparent; color:var(--text); font-size:16px; outline:none}
+    .input:focus, .select:focus{border-color:var(--brand); box-shadow:0 0 0 4px rgba(37,99,235,.15)}
+
+    .actions{display:flex; gap:10px; margin-top:10px; align-items:center; flex-wrap:wrap}
+    .btn{appearance:none; border:0; border-radius:12px; padding:12px 16px; font-size:16px; font-weight:700; cursor:pointer; color:#fff; background:linear-gradient(135deg, var(--brand), var(--brand-600)); box-shadow:0 10px 20px rgba(37,99,235,.35);}
+    .btn:hover{transform:translateY(-1px); box-shadow:0 14px 28px rgba(37,99,235,.45)}
+    .btn:disabled{opacity:.65; cursor:not-allowed; transform:none; box-shadow:none}
+
+    .loader{display:inline-block; width:18px; height:18px; border:3px solid rgba(255,255,255,.45); border-top-color:#fff; border-radius:50%; animation:spin .9s linear infinite; margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .msg{margin-top:10px; font-weight:600}
+    .msg.error{color:var(--danger)}
+    .msg.ok{color:var(--success)}
+
+    .results{margin-top:18px; padding:0 2px 18px}
+
+    .stats{display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; margin-top:10px}
+    @media (min-width: 768px){ .stats{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+    .stat{border:1px solid var(--border); border-radius:14px; padding:14px; background:var(--card)}
+    .stat .label{font-size:12px; color:var(--muted)}
+    .stat .value{font-size:22px; font-weight:800; margin-top:2px}
+
+    table{width:100%; border-collapse:collapse; margin-top:14px; overflow:hidden; border-radius:12px; border:1px solid var(--border)}
+    th,td{padding:10px 12px; border-bottom:1px solid var(--border); text-align:left}
+    th{background:rgba(37,99,235,.07)}
+    tr:hover td{background:rgba(37,99,235,.04)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <span>成績查詢｜家長入口</span>
+      </div>
+    </nav>
+
+    <section class="hero" aria-label="說明">
+      <h1>查詢學生成績</h1>
+      <p>請輸入 <strong>學號</strong> 與 <strong>完整姓名</strong>（需與學校名冊一致）。</p>
+    </section>
+
+    <section class="card" aria-label="查詢表單">
+      <div class="card-body">
+        <div class="grid">
+          <div>
+            <label for="sid">學號</label>
+            <input id="sid" class="input" placeholder="例：410699" inputmode="numeric" pattern="[0-9]*" maxlength="12" />
+            <div class="hint">可輸入全形或含空白，系統會自動修正</div>
+          </div>
+          <div>
+            <label for="sname">姓名（全名）</label>
+            <input id="sname" class="input" placeholder="例：陳小頌" />
+            <div class="hint">需與名冊完全一致；會自動忽略全形空格、常見符號</div>
+          </div>
+        </div>
+
+        <!-- ▼ 學期 & 段考 下拉選單 -->
+        <div class="grid" style="margin-top:8px">
+          <div>
+            <label for="term">學期</label>
+            <select id="term" class="select">
+              <option value="1">上學期</option>
+              <option value="2">下學期</option>
+            </select>
+          </div>
+          <div>
+            <label for="exam">段考</label>
+            <select id="exam" class="select">
+              <option value="1">第 1 次段考</option>
+              <option value="2">第 2 次段考</option>
+              <option value="3">第 3 次段考</option>
+            </select>
+          </div>
+        </div>
+        <!-- ▲ 下拉結束 -->
+
+        <div class="actions">
+          <button id="queryBtn" class="btn">
+            <span id="spin" class="loader" style="display:none"></span>
+            查詢成績
+          </button>
+          <div id="msg" class="msg" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" aria-label="查詢結果">
+      <div id="summary" class="stats" style="display:none"></div>
+      <div id="result"></div>
+    </section>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz_589hDSFTpIHhpun0P0KjNm3_7vGo2qcblQiW1nIIHPHy3V2TE2dwXQCdqm5zFcd5Lg/exec';
+
+    const $ = (sel)=>document.querySelector(sel);
+    const msg = $('#msg');
+    const btn = $('#queryBtn');
+    const spin = $('#spin');
+    const result = $('#result');
+    const summary = $('#summary');
+
+    function escapeHtml(s){ return String(s)
+      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+      .replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+
+    function normalize(s){ return (s||'').toString().trim(); }
+
+    async function query(){
+      const sid = normalize($('#sid').value);
+      const sname = normalize($('#sname').value);
+      const term = $('#term').value; // 1=上學期, 2=下學期
+      const exam = $('#exam').value; // 1/2/3
+      msg.textContent = '';
+      msg.className = 'msg';
+      result.innerHTML='';
+      summary.style.display='none';
+      summary.innerHTML='';
+
+      if(!sid || !sname){
+        msg.textContent = '請完整輸入學號與姓名';
+        msg.classList.add('error');
+        return;
+      }
+      btn.disabled = true; spin.style.display='inline-block';
+      try{
+        const url = new URL(API_URL);
+        url.searchParams.set('id', sid);
+        url.searchParams.set('name', sname);
+        url.searchParams.set('term', term);
+        url.searchParams.set('exam', exam);
+        const res = await fetch(url.toString());
+        const data = await res.json();
+
+        if(!data.ok){
+          // 真錯誤才顯示紅字（例如缺參數）
+          msg.textContent = data.message || '查詢失敗，請稍後再試';
+          msg.classList.add('error');
+          return;
+        }
+
+        // 這裡 data.ok 為 true，可能有資料也可能沒有資料
+        renderResult(data.data||{}, term, exam, data.message);
+        msg.textContent = data.message ? data.message : '查詢成功';
+        msg.classList.add(data.message ? 'ok' : 'ok'); // 始終顯示綠字提示
+      }catch(err){
+        console.error(err);
+        msg.textContent = '連線異常，請確認 API_URL 是否正確或稍後再試';
+        msg.classList.add('error');
+      }finally{
+        btn.disabled = false; spin.style.display='none';
+      }
+    }
+
+    function renderResult(record, term, exam, backendMessage){
+      const termText = term==='1' ? '上學期' : '下學期';
+      const examText = `第 ${exam} 次段考`;
+      const infoBar = `<div class="hint" style="margin:8px 2px">目前顯示：<strong>${termText}</strong>｜<strong>${examText}</strong></div>`;
+
+      // 統計卡（有值才顯示）
+      const highlights = [
+        {key:'班級', label:'班級'},
+        {key:'總分', label:'總分'},
+        {key:'平均', label:'平均'},
+        {key:'名次', label:'名次'}
+      ].filter(x => record[x.key] !== undefined && record[x.key] !== '');
+
+      if(highlights.length){
+        summary.style.display='grid';
+        summary.innerHTML = highlights.map(h => `
+          <div class="stat">
+            <div class="label">${escapeHtml(h.label)}</div>
+            <div class="value">${escapeHtml(record[h.key])}</div>
+          </div>
+        `).join('');
+      }
+
+      const entries = Object.entries(record);
+
+      // ✅ 沒資料：顯示友善提示（優先採用後端傳來的 message）
+      if(!entries.length){
+        const msgText = backendMessage || '尚無資料';
+        result.innerHTML = infoBar + `<div class="hint" style="margin:12px 2px">${escapeHtml(msgText)}</div>`;
+        return;
+      }
+
+      // 有資料：渲染表格
+      const thead = '<thead><tr><th>欄位</th><th>內容</th></tr></thead>';
+      const tbody = '<tbody>' + entries.map(([k,v])=>
+        `<tr><td>${escapeHtml(k)}</td><td>${escapeHtml(v)}</td></tr>`
+      ).join('') + '</tbody>';
+      result.innerHTML = infoBar + `<table>${thead}${tbody}</table>`;
+      result.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    btn.addEventListener('click', query);
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter') query();
+    });
+  </script>
+</body>
+</html>
