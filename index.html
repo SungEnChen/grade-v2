@@ -177,7 +177,7 @@
 
       if(!sid || !sname){
         msg.textContent = '請完整輸入學號與姓名';
-        msg.classList.add('error');
+        msg.className = 'msg error';
         return;
       }
       btn.disabled = true; spin.style.display='inline-block';
@@ -191,20 +191,35 @@
         const data = await res.json();
 
         if(!data.ok){
-          // 真錯誤才顯示紅字（例如缺參數）
+          // 真錯誤（缺參數等） → 紅色
           msg.textContent = data.message || '查詢失敗，請稍後再試';
-          msg.classList.add('error');
+          msg.className = 'msg error';
           return;
         }
 
-        // 這裡 data.ok 為 true，可能有資料也可能沒有資料
-        renderResult(data.data||{}, term, exam, data.message);
-        msg.textContent = data.message ? data.message : '查詢成功';
-        msg.classList.add(data.message ? 'ok' : 'ok'); // 始終顯示綠字提示
+        const hasData = data.data && Object.keys(data.data).length > 0;
+
+        if (hasData) {
+          // ✅ 有資料：綠色成功
+          renderResult(data.data||{}, term, exam, null);
+          msg.textContent = '查詢成功';
+          msg.className = 'msg ok';
+        } else {
+          // ❗ 無資料：依訊息內容決定顏色
+          const backendMsg = data.message || '尚無資料';
+          renderResult({}, term, exam, backendMsg);
+
+          if (backendMsg.includes('學號或姓名輸入錯誤')) {
+            msg.className = 'msg error'; // 紅色
+          } else {
+            msg.className = 'msg';       // 灰色（預設）
+          }
+          msg.textContent = backendMsg;
+        }
       }catch(err){
         console.error(err);
         msg.textContent = '連線異常，請確認 API_URL 是否正確或稍後再試';
-        msg.classList.add('error');
+        msg.className = 'msg error';
       }finally{
         btn.disabled = false; spin.style.display='none';
       }
